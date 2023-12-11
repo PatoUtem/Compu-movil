@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { fetchPuntosRecogida } from '../firebase/database';
+import { fetchPuntosRecogida, getUserFavorites } from '../firebase/database';
 import { fetchProducts } from '../firebase/database';
-import { PuntoRecogida } from '../interfaces/dropPoints';
+import { Favoritos, PuntoRecogida } from '../interfaces/dropPoints';
 import { Producto } from '../interfaces/dropPoints';
 import { MapComponent } from '../components/MapComponent';
 import { useIsFocused } from '@react-navigation/native';
@@ -10,8 +10,10 @@ import { useIsFocused } from '@react-navigation/native';
 const PuntosRecogidaScreen = () => {
     const [puntosRecogida, setPuntosRecogida] = useState<PuntoRecogida[]>([]);
     const [productos, setProductos] = useState<Producto[]>([]); // Estado para almacenar los productos
+    const [favoritos, setFavoritos] = useState<Favoritos>({}); // Estado para almacenar los productos
     const [userId, setUserId] = useState<string>("");
     const isFocused = useIsFocused();
+    type ProductosEnPunto = { [key: string]: boolean };
 
     useEffect(() => {
         if (isFocused) {
@@ -23,16 +25,37 @@ const PuntosRecogidaScreen = () => {
                     setUserId("");
                 }
             });
-
-            fetchPuntosRecogida()
-                .then((data: PuntoRecogida[]) => setPuntosRecogida(data))
-                .catch((error) => console.log(error));
-
-            fetchProducts()
-                .then((data: Producto[]) => setProductos(data))
-                .catch((error) => console.log(error));
-
             
+            let productosConStock: Producto[] = [];
+
+            getUserFavorites(userId)
+            .then((favoritesData) => {
+                setFavoritos(favoritesData);
+                
+                fetchProducts()
+                .then((productosData) => {
+                    productosConStock = productosData.filter(producto => producto.stock > 0 && !favoritesData[producto.id]);
+                    setProductos(productosConStock);
+                    return fetchPuntosRecogida();
+                })
+
+                .then((puntosData) => {
+                    const puntosFiltrados: PuntoRecogida[] = puntosData.map(punto => {
+                        const productosFiltrados: ProductosEnPunto = Object.keys(punto.productos)
+                            .filter(key => productosConStock.some(p => p.id === key))
+                            .reduce((obj, key) => {
+                                obj[key] = true;
+                                return obj;
+                            }, {} as ProductosEnPunto);
+                        return { ...punto, productos: productosFiltrados };
+                    });
+                    console.log(puntosFiltrados);
+                    setPuntosRecogida(puntosFiltrados);
+                })
+                .catch((error) => console.log(error));
+            })
+            .catch((error) => console.log("Error al obtener favoritos:", error));
+                
             return () => unsubscribe();
         }
     }, [isFocused, userId]);

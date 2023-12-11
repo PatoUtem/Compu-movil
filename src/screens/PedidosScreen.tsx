@@ -17,32 +17,35 @@ const PedidosScreens = () => {
     useEffect(() => {
         if (isFocused) {
             // verificar sesion esta iniciada
-        const auth = getAuth();
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // Usuario está autenticado
-                setUserId(user.uid);
-            } else {
-                // Usuario no está autenticado
-                setUserId("");
-            }
-        });
+            const auth = getAuth();
+            const unsubscribe = onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // Usuario está autenticado
+                    setUserId(user.uid);
+                } else {
+                    // Usuario no está autenticado
+                    setUserId("");
+                }
+            });
 
-        fetchProducts()
-            .then((data: Producto[]) => setProductos(data))
-            .catch((error) => console.log(error));
+            getUserFavorites(userId)
+                .then((favoritesData) => {
+                    setFavoritos(favoritesData);
+
+                    // Obtener todos los productos
+                    fetchProducts()
+                        .then((productosData) => {
+                            // Filtrar para incluir solo los productos que son favoritos
+                            const productosFavoritos = productosData.filter(producto => favoritesData[producto.id]);
+                            setProductos(productosFavoritos);
+                        })
+                        .catch((error) => console.log("Error al obtener productos:", error));
+                })
+                .catch((error) => console.log("Error al obtener favoritos:", error));
         }
-
-        getUserFavorites(userId)
-            .then((favoritesData) => {
-                setFavoritos(favoritesData);
-            })
-            .catch((error) => console.log(error));
-
     }, [isFocused, userId]);
 
    
-
     const handleToggleFavorito = async (productoId: string) => {
         const esFavorito = await checkFavorite(userId, productoId);
         if (esFavorito) {
@@ -50,8 +53,18 @@ const PedidosScreens = () => {
         } else {
             await addProductToFavorites(userId, productoId);
         }
-        setFavoritos(prev => ({ ...prev, [productoId]: !esFavorito }));
+        // Actualizar el estado de favoritos
+        const nuevosFavoritos = { ...favoritos, [productoId]: !esFavorito };
+        setFavoritos(nuevosFavoritos);
         console.log(favoritos);
+
+        // Volver a filtrar la lista de productos para actualizar la vista, si no no se refleja el cambio :(
+        fetchProducts()
+        .then((productosData) => {
+            const productosFavoritos = productosData.filter(producto => nuevosFavoritos[producto.id]);
+            setProductos(productosFavoritos);
+        })
+        .catch((error) => console.log("Error al obtener productos:", error));
     };
 
     return (

@@ -18,6 +18,7 @@ export interface Producto {
     precio: number;
     imagenUrl: string;
     puntosRecogida: { [key: string]: boolean };
+    stock: number;
 }
 
 export interface PuntoRecogidaConProductos {

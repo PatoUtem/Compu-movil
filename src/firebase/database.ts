@@ -1,5 +1,5 @@
 import { database } from "./firebaseConfig";
-import { ref, set, onValue, get, remove } from "firebase/database";
+import { ref, set, onValue, get, remove, update } from "firebase/database";
 import { Producto,PuntoRecogida,Favoritos } from "../interfaces/dropPoints";
 
 const userRef = ref(database, "users/usuario23");
@@ -82,16 +82,45 @@ const getUserFavorites = async (userId: string): Promise<Favoritos> => {
   return snapshot.val() || {};
 };
 
-//agregar favorito al usuario
+//agregar favorito al usuario y modificar stock
 const addProductToFavorites = async (userId: string, productId: string) => {
+  const productRef = ref(database, `productos/${productId}`);
   const favRef = ref(database, `usuarios/${userId}/favoritos/${productId}`);
-  await set(favRef, true);
+
+  // Obtener el stock actual del producto
+  const productSnapshot = await get(productRef);
+  if (productSnapshot.exists()) {
+    const productData = productSnapshot.val();
+    if (productData.stock > 0) {
+      // Actualizar el stock
+      await update(productRef, { stock: productData.stock - 1 });
+
+      // Agregar a favoritos
+      await set(favRef, true);
+    }
+    else {
+      console.log("Producto no disponible en stock");
+    }
+  }
 };
 
 //eliminar favorito del usuario
 const removeProductFromFavorites = async (userId: string, productId: string) => {
+  const productRef = ref(database, `productos/${productId}`);
   const favRef = ref(database, `usuarios/${userId}/favoritos/${productId}`);
-  await remove(favRef);
+
+  // Obtener el stock actual del producto
+  const productSnapshot = await get(productRef);
+  if (productSnapshot.exists()) {
+    const productData = productSnapshot.val();
+
+    // Actualizar el stock
+    await update(productRef, { stock: productData.stock + 1 });
+
+    // Quitar de favoritos
+    await remove(favRef);
+  }
+  
 };
 
 //ver si existe el producto en la base de datos de favoritos
