@@ -1,18 +1,34 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native'
-import { MapScreen } from './src/screens/MapScreen';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { StackNavigationProp, createStackNavigator } from '@react-navigation/stack';
+import LoginScreen from './src/screens/LoginScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import SignInScreen from './src/screens/SignInScreen';
+import Loader from "./src/components/Loader";
 
-export default function App() {
+type RootStackParamList = {
+  Login: undefined;
+  Home: undefined;
+  SignIn: undefined;
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
+
+const stackScreenOptions = {
+  headerLeft: () => null, 
+  headerShown: false,
+};
+
+const App  = () => {
   return (
-    <MapScreen />
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login" screenOptions={stackScreenOptions}>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="SignIn" component={SignInScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
