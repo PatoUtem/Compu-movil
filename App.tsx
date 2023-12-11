@@ -26,7 +26,7 @@ const App  = () => {
 
     useEffect(() => {
         setTimeout(() => {
-            setIsSplashScreenVisible(true);
+            setIsSplashScreenVisible(false);
         }, 3000); // 3 segundos
     }, []);
 
