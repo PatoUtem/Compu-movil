@@ -35,7 +35,7 @@ const App  = () => {
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
           <Image source={splashImage} style={{ width: 250, height: 250 }} />
           
-          <Text style={{ color:'green',marginBottom:100, fontSize:40, marginTop:30}}>Nombre APP </Text>
+          <Text style={{ color:'green',marginBottom:100, fontSize:40, marginTop:30}}>Plato Circular </Text>
           <Text>Cargando...</Text>
       </View>
         );
