@@ -5,14 +5,12 @@ import {
 import { auth } from "./firebaseConfig";
 
 const signIn = async (email: string, password: string) => {
-  return createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      return userCredential.user;
-    })
-    .catch((error) => {
-      console.error(error);
-      return undefined;
-    });
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (error) {
+    throw error;
+  }
 };
 
 const logIn = async (email: string, password: string) => {

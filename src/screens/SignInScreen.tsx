@@ -5,6 +5,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { styles } from '../Styles/Styles';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { IError } from '../interfaces/dropPoints';
+import { addUserToFavorites } from '../firebase/database';
 
 type RootStackParamList = {
     Login: undefined;
@@ -18,57 +19,77 @@ type RootStackParamList = {
 
 export const SignInScreen = ({navigation}: SiginProps) => {
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [correctData, setCorrectData] = useState(false);
-  const [error, setError] = useState<IError | undefined>(undefined);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [correctData, setCorrectData] = useState(false);
+    const [error, setError] = useState<IError | undefined>(undefined);
+    const isValidEmail = true;
+    const isValidPassword = true;
+    
+    const handlerSubmit = async () => {
+    
+    setLoading(true);
+    try {
+        const user = await signIn(email, password);
+        if (user) {
+            // Usuario registrado exitosamente
+            setLoading(false);
+            await addUserToFavorites(user.uid);
+            navigation.navigate("Login"); // Navegar a la pantalla de inicio
+        }
+    } catch (error) {
+        setLoading(false);
+        if (typeof error === "object" && error !== null) {
+            const firebaseError = error as { code: string, message: string };
+            setError({
+                code: firebaseError.code,
+                message: firebaseError.message,
+            });
+        } else {
+            //errore inesperados
+            setError({
+                code: 'Error inesperado',
+                message: 'Ocurrió un error inesperado durante el registro.',
+            });
+        }
+    };
+    
+    }
 
-  const handlerSubmit = async () => {
-      setLoading(true);
-      const user = await signIn(email, password);
-      if (user) {
-          // TODO: guardar datos del usuario en el storage(context, reducer, redux, etc...)
-          setLoading(false);
-      } else {
-          // TODO: manejar el error
-          setLoading(false);
-          setError({
-              code: '404',
-              message: 'no existe usuario',
-          })
-      }
-  }
-  const LoginInSubmit = async () => {
+    const LoginInSubmit = async () => {
 
-      navigation.navigate("Login");
-      setLoading(false);
+        navigation.navigate("Login");
+        setLoading(false);
     };
 
-  useEffect(() => {
-      if (email !== '' && password !== '') {
-          setCorrectData(false);
-      }
-      else {
-          setCorrectData(true)
-      }
+    useEffect(() => {
+        const isValidEmail = email.includes('@') && email.includes('.');
+        const isValidPassword = password.length >= 6;
 
-  }, [email, password])
+        setCorrectData(!(isValidEmail && isValidPassword));
+
+    }, [email, password])
+
+    const retry = () => {
+        setError(undefined); // Resetea el estado de error
+    };
 
   if (error) {
-      return (
-          <View>
-              <Text>
-                  {error.message}
-              </Text>
-          </View>
-      )
-  }
-
+    return (
+        <View style={styles.centeredView}>
+            <Text style={styles.errorText}>{error.message}</Text>
+            <Button title="Reintentar" onPress={retry} />
+        </View>
+    );
+    }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
         <Text style={{ color:'green',marginBottom:100, fontSize:40}}>Registro</Text>
+
+
+        <Text style={{marginBottom:60, fontSize:15}}>Recuerde que debe ingresar un correo electronico y una clave de 6 o mas caracteres</Text>
           <TextInput
               placeholder="Ingrese Email"
               onChangeText={setEmail}
@@ -84,6 +105,9 @@ export const SignInScreen = ({navigation}: SiginProps) => {
               secureTextEntry
           />
           <View style={{ marginTop: 50, width: '70%' ,backgroundColor:'green',borderRadius:20}}>
+          {!isValidEmail && <Text style={styles.errorText}>Correo inválido</Text>}
+            {!isValidPassword && <Text style={styles.errorText}>La contraseña debe tener al menos 6 caracteres</Text>}
+            
               <Button
                   onPress={handlerSubmit}
                   title={loading ? 'Creando usuario...' : 'Registrarse'}
@@ -91,6 +115,12 @@ export const SignInScreen = ({navigation}: SiginProps) => {
                   disabled={loading || correctData}
               />
           </View>
+
+          <View>
+            
+           
+        </View>
+
           <Button
           onPress={LoginInSubmit}
           title='¿Ya tienes una cuenta?'

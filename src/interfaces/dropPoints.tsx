@@ -11,6 +11,7 @@ export interface Coordenada {
     longitud: number,
 }
 
+
 export interface Producto {
     id: string;
     nombre: string;

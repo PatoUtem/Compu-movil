@@ -116,4 +116,14 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
+    marginBottom: 20,
+  },
 });

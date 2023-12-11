@@ -52,10 +52,27 @@ const fetchPuntosRecogida = ():Promise<PuntoRecogida[]> => {
   });
 };
 
-//ver si existe el usuario en la base de datos de favoritos
-
 
 //agregar usuario a la base de datos de favoritos
+const addUserToFavorites = async (userId: string) => {
+  console.log("Agregando usuario a favoritos con ID:", userId);
+  const userRef = ref(database, `usuarios/${userId}`);
+  
+  const initialFavorites = {
+    "1": false
+  };
+
+  try {
+    await set(userRef, {
+      //inicializado: true,
+      favoritos: initialFavorites
+    });
+    console.log("Usuario agregado a favoritos");
+  } catch (error) {
+    console.error("Error al agregar usuario a favoritos:", error);
+  }
+  
+};
 
 
 //leer favoritos del usuario
@@ -85,4 +102,4 @@ const checkFavorite = async (userId: string, productId: string): Promise<boolean
 };
 
 
-export { writeUserData, readUserData, fetchProducts,fetchPuntosRecogida, getUserFavorites, addProductToFavorites, removeProductFromFavorites, checkFavorite };
+export { writeUserData, readUserData, fetchProducts,fetchPuntosRecogida, getUserFavorites, addProductToFavorites, removeProductFromFavorites, checkFavorite, addUserToFavorites };

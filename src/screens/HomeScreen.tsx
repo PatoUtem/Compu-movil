@@ -30,12 +30,13 @@ function HomeScreen({ navigation }: HomeProps) {
                 : 'home-outline';
             } else if (route.name === "Mapa") {
               iconName = focused ? 'map' : 'map-outline';
-            } else if (route.name === "Favoritos") {
-              iconName = focused ? 'heart' : 'heart-outline';
+            } else if (route.name === "Reservas") {
+              iconName = focused ? 'fast-food' : 'fast-food-outline';
             }else if(route.name === "Perfil"){
                 iconName = focused ? 'person' :'person-outline';
             }
 
+            // You can return any component that you like here!
             return <Ionicons name={iconName} size={size} color={color} />;
           },
         tabBarActiveTintColor: 'tomato',
@@ -43,8 +44,21 @@ function HomeScreen({ navigation }: HomeProps) {
         
       })}
     >
+        {/*<Tab.Screen name="Inicio" component={InicioScreen} options={({ navigation }) => ({
+            headerRight: () => (
+              <Ionicons
+                name="cart-outline"
+                size={30}
+                color="gray"
+                style={{ marginRight: 15 }}
+              />
+            ),
+          })}/> */}
+
         <Tab.Screen name="Mapa" component={PuntosRecogidaScreen} />
-        <Tab.Screen name="Favoritos" component={PedidosScreens} />
+
+        <Tab.Screen name="Reservas" component={PedidosScreens} />
+
         <Tab.Screen name="Perfil" component={PerfilScreen} options={({ navigation }) => ({
             headerRight: () => (
               <Ionicons

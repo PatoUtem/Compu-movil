@@ -7,7 +7,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { addProductToFavorites, removeProductFromFavorites, checkFavorite, getUserFavorites } from '../firebase/database';
 import { useIsFocused } from '@react-navigation/native';
 
-
 interface MapComponentProps {
     puntosRecogida: PuntoRecogida[];
     productos: Producto[];
@@ -96,7 +95,7 @@ interface MapComponentProps {
                             </View>
                         ))}
                         <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedPunto(null)}>
-                            <Text>Close</Text>
+                            <Text>Cerrar</Text>
                         </TouchableOpacity>
                     </ScrollView>
                 </View>
