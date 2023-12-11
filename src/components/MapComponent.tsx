@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import MapView, { Marker } from 'react-native-maps';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, Modal } from 'react-native';
 import { PuntoRecogida,Producto,PuntoRecogidaConProductos } from '../interfaces/dropPoints';
 import { styles } from '../Styles/Styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -18,7 +18,7 @@ interface MapComponentProps {
     const [selectedPunto, setSelectedPunto] = useState<PuntoRecogidaConProductos | null>(null);
     const [favoritos, setFavoritos] = useState<{ [key: string]: boolean }>({});
     const isFocused = useIsFocused();
-
+    const [modalVisible, setModalVisible] = useState(false);
     
 
     useEffect(() => {
@@ -39,6 +39,7 @@ interface MapComponentProps {
                 .filter(productId => punto.productos[productId] === true)
                 .map(productId => productos.find(p => p.id === productId) as Producto);
             setSelectedPunto({ ...punto, productos: productosEnPunto });
+            setModalVisible(true);
         }
     };
 
@@ -76,30 +77,49 @@ interface MapComponentProps {
                     />
                 ))}
             </MapView>
-            {selectedPunto && (
-                <View style={styles.tooltip}>
-                    <ScrollView>
-                        <Text style={styles.puntoNombre}>{selectedPunto.nombre}</Text>
-                        {selectedPunto.productos.map((prod, idx) => (
-                            <View key={idx} style={styles.productInfo}>
-                                <Text style={styles.productName}>{prod.nombre}</Text>
-                                <Text>{`Precio: $${prod.precio}`}</Text>
-                                <Image source={{ uri: prod.imagenUrl }} style={styles.productImage} />
-                                <TouchableOpacity onPress={() => handleToggleFavorite(prod.id)}>
-                                <Ionicons
-                                    name={favoritos[prod.id] ? "heart" : "heart-outline"}
-                                    size={24}
-                                    color={favoritos[prod.id] ? 'red' : 'grey'}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                    setModalVisible(!modalVisible);
+                }}
+            >
+                <View style={styles.centeredViewModal}>
+                    <View style={styles.modalView}>
+                        {selectedPunto && (
+                            <>
+                                <Text style={styles.modalText}>{selectedPunto.nombre}</Text>
+                                <FlatList
+                                    style={{ width: '100%' }}
+                                    data={selectedPunto.productos}
+                                    keyExtractor={(item) => `producto_${item.id}`}
+                                    renderItem={({ item }) => (
+                                        <View style={styles.productInfo}>
+                                            <Text style={styles.productName}>{item.nombre}</Text>
+                                            <Text>{`Precio: $${item.precio}`}</Text>
+                                            <Image source={{ uri: item.imagenUrl }} style={styles.productImage} />
+                                            <TouchableOpacity onPress={() => handleToggleFavorite(item.id)}>
+                                                <Ionicons
+                                                    name={favoritos[item.id] ? "heart" : "heart-outline"}
+                                                    size={24}
+                                                    color={favoritos[item.id] ? 'red' : 'grey'}
+                                                />
+                                            </TouchableOpacity>
+                                        </View>
+                                    )}
                                 />
-                            </TouchableOpacity>
-                            </View>
-                        ))}
-                        <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedPunto(null)}>
-                            <Text>Cerrar</Text>
-                        </TouchableOpacity>
-                    </ScrollView>
+                                <TouchableOpacity
+                                    style={[styles.button, styles.buttonClose]}
+                                    onPress={() => setModalVisible(!modalVisible)}
+                                >
+                                    <Text style={styles.textStyle}>Cerrar</Text>
+                                </TouchableOpacity>
+                            </>
+                        )}
+                    </View>
                 </View>
-            )}
+            </Modal>
         </View>
     );
 };
