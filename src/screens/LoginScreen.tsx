@@ -24,10 +24,17 @@ const LoginScreen = ({ navigation }: LoginProps) => {
 
   const handleSubmit = async () => {
     setLoading(true);
-    const successRegister = await logIn(email, password);
-    navigation.navigate("Home");
+    const success = await logIn(email, password);
+    if (success) {
+        // Inicio de sesión exitoso
+        navigation.navigate("Home");
+    } else {
+        // Error de inicio de sesión, mostrar un mensaje al usuario
+        alert("Usuario o contraseña incorrectos");
+    }
     setLoading(false);
   };
+
   const SignInSubmit = async () => {
 
     navigation.navigate("SignIn");

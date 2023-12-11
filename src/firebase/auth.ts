@@ -21,7 +21,7 @@ const logIn = async (email: string, password: string) => {
       return true;
     })
     .catch((error) => {
-      console.error(error);
+      //console.error(error);
       return false;
     });
 };
