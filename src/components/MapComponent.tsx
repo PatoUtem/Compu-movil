@@ -96,16 +96,25 @@ interface MapComponentProps {
                                     keyExtractor={(item) => `producto_${item.id}`}
                                     renderItem={({ item }) => (
                                         <View style={styles.productInfo}>
-                                            <Text style={styles.productName}>{item.nombre}</Text>
-                                            <Text>{`Precio: $${item.precio}`}</Text>
-                                            <Image source={{ uri: item.imagenUrl }} style={styles.productImage} />
-                                            <TouchableOpacity onPress={() => handleToggleFavorite(item.id)}>
-                                                <Ionicons
-                                                    name={favoritos[item.id] ? "heart" : "heart-outline"}
-                                                    size={24}
-                                                    color={favoritos[item.id] ? 'red' : 'grey'}
-                                                />
-                                            </TouchableOpacity>
+                                            
+                                            <View style={styles.contenedorModal}>
+                                                <View style={styles.elementoContenedor}>
+                                                    <Image source={{ uri: item.imagenUrl }} style={styles.productImage} />
+                                                </View>
+                                                <View style={styles.elementoContenedor}>
+                                                    <Text style={styles.productName}>{item.nombre}</Text>
+                                                    <Text>{`Precio: $${item.precio}`}</Text>    
+                                                    <TouchableOpacity style={{width: '50%'}} onPress={() => handleToggleFavorite(item.id)}>
+                                                        <Ionicons
+                                                            name={favoritos[item.id] ? "heart" : "heart-outline"}
+                                                            size={24}
+                                                            color={favoritos[item.id] ? 'red' : 'grey'}
+                                                        />
+                                                    </TouchableOpacity>     
+                                                </View>
+                                                
+                                            </View>
+                                            
                                         </View>
                                     )}
                                 />

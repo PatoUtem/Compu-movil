@@ -168,5 +168,14 @@ export const styles = StyleSheet.create({
   modalText: {
       marginBottom: 15,
       textAlign: "center"
+  },
+  contenedorModal: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'stretch' 
+  },
+  elementoContenedor: {
+    flex: 1, 
   }
+
 });
